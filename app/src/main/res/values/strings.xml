@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">HomeWork04</string>
+    <string name="welcome_str">Welcome to Trivia App</string>
+    <string name="exitBtn_str">Exit</string>
+    <string name="startBtn_str">Start Trivia</string>
+    <string name="quitBtn_str">Quit</string>
+    <string name="nextBtn_str">Next</string>
+    <string name="triviaStats_str">Trivia Stats</string>
+    <string name="correctAnswers_str">Correct Answers</string>
+    <string name="tryAgain_str">Try again and see if you can get all the correct answers!</string>
+    <string name="tryAgainBtn_str">Try Again</string>
 </resources>
