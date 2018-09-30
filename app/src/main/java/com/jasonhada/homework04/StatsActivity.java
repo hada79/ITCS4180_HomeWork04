@@ -3,7 +3,7 @@ package com.jasonhada.homework04;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class Stats extends AppCompatActivity {
+public class StatsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
