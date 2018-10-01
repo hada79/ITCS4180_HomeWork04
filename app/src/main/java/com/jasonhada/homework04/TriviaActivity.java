@@ -1,15 +1,24 @@
 package com.jasonhada.homework04;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.drm.DrmStore;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
+import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -20,8 +29,10 @@ import java.util.ArrayList;
 
 public class TriviaActivity extends AppCompatActivity {
 
+    static String SCORE_KEY = "SCORE";
     ArrayList<Question> questions;
     int currentQuestionIndex;
+    RadioButton selectedRb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,40 +70,85 @@ public class TriviaActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.next_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Question question = questions.get(currentQuestionIndex);
+//                for(String string : question.getOptions()) {
+//                    if(selectedRb != null) {
+//                        if (string.matches(selectedRb.getText().toString())) {
+//                            question.setAnswerIndex(question.getOptions().indexOf(string));
+//                        }
+//                    }
+//                }
 
+                // if more questions, next question, else end game
+                if(currentQuestionIndex < questions.size() -1) {
+                    currentQuestionIndex++;
+                    displayQuestion(questions.get(currentQuestionIndex));
+                } else {
+                    endGame();
+                }
+            }
+        });
     }
 
     private void endGame() {
+        int totalScore = 0;
+        for (Question q : questions) {
+            if(q.getAnswerIndex() == q.getUserAnswerIndex()){
+                totalScore++;
+            }
+        }
 
-        // TODO
+        int percent = (int) ( totalScore * 100.0f / questions.size());
+        Intent i = new Intent(TriviaActivity.this, StatsActivity.class);
+        i.putExtra(SCORE_KEY, percent);
+        Log.d("demo", totalScore + " "+percent);
+        startActivity(i);
     }
 
-    private void displayQuestion(Question question) {
+    private void displayQuestion(final Question question) {
 
         if(question.getUrl() != null) {
             new GetImageAsync().execute(question.getUrl());
         }
 
+        question.setUserAnswerIndex(-1);
+
         TextView questionNo_tv = findViewById(R.id.questionNo_tv);
-        questionNo_tv.setText("Q" + question.getIndex()+1);
+        questionNo_tv.setText("Q" + (question.getIndex()+1));
 
         TextView question_tv = findViewById(R.id.question_tv);
         question_tv.setText(question.getQuestion());
 
-        ArrayList<String> options = question.getOptions();
+        final ArrayList<String> options = question.getOptions();
 
-        // TODO: this needs to be able to handle variable number of options. Right now it is static.
-        TextView option1_tv = findViewById(R.id.option1_tv);
-        option1_tv.setText(options.get(0));
+        RadioGroup rg = findViewById(R.id.options_rg);
 
-        TextView option2_tv = findViewById(R.id.option2_tv);
-        option2_tv.setText(options.get(1));
+        rg.removeAllViews();
 
-        TextView option3_tv = findViewById(R.id.option3_tv);
-        option3_tv.setText(options.get(2));
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
 
-        TextView option4_tv = findViewById(R.id.option4_tv);
-        option4_tv.setText(options.get(3));
+                //selectedRb = (RadioButton)findViewById(checkedId);
+                question.setUserAnswerIndex(checkedId - 100);
+            }
+        });
+
+        int parentId = R.id.question_tv;
+
+        for(int i=0; i < options.size(); i++) {
+
+            RadioButton[] rb = new RadioButton[options.size()];
+            rg.setOrientation(RadioGroup.VERTICAL);
+
+            rb[i] = new RadioButton(this);
+            rb[i].setId(100+i);
+            rb[i].setText(options.get(i));
+            rg.addView(rb[i]);
+        }
 
     }
 
